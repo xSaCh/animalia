@@ -24,22 +24,22 @@ type World struct {
 	tick uint
 }
 
-func NewWorld() *World {
-	SIZE := 30
-	grid := make([][]bool, SIZE)
+func NewWorld(size int) *World {
+	// SIZE := 30
+	grid := make([][]bool, size)
 	for i := range grid {
-		grid[i] = make([]bool, SIZE)
+		grid[i] = make([]bool, size)
 	}
-	for x := range SIZE {
-		for y := range SIZE {
+	for x := range size {
+		for y := range size {
 			grid[y][x] = true
 		}
 	}
 	// Random 5 water sources
 	waters := make([]common.StaticObstacle, 0)
 	for range 5 {
-		x := rand.Intn(SIZE)
-		y := rand.Intn(SIZE)
+		x := rand.Intn(size)
+		y := rand.Intn(size)
 		waters = append(waters, common.StaticObstacle{
 			Position: common.Vector2D{X: float64(x), Y: float64(y)},
 			Type:     common.ObstacleTypeWaterSource})
@@ -48,8 +48,8 @@ func NewWorld() *World {
 	// Random 10 food sources
 	foods := make([]common.StaticObstacle, 0)
 	for range 10 {
-		x := rand.Intn(SIZE)
-		y := rand.Intn(SIZE)
+		x := rand.Intn(size)
+		y := rand.Intn(size)
 		foods = append(foods, common.StaticObstacle{
 			Position: common.Vector2D{X: float64(x), Y: float64(y)},
 			Type:     common.ObstacleTypeFoodSource})
@@ -58,8 +58,8 @@ func NewWorld() *World {
 	// Random 10 obstacles
 	obstacles := make([]common.StaticObstacle, 0)
 	for range 10 {
-		x := rand.Intn(SIZE)
-		y := rand.Intn(SIZE)
+		x := rand.Intn(size)
+		y := rand.Intn(size)
 		obstacles = append(obstacles, common.StaticObstacle{
 			Position: common.Vector2D{X: float64(x), Y: float64(y)},
 			Type:     common.ObstacleTypeWall})
@@ -67,8 +67,8 @@ func NewWorld() *World {
 	}
 	return &World{
 		ID:             001,
-		Width:          float64(SIZE),
-		Height:         float64(SIZE),
+		Width:          float64(size),
+		Height:         float64(size),
 		NavigationGrid: grid,
 		StaticObstacles: common.StaticObstacles{
 			Walls:        obstacles,

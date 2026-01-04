@@ -35,8 +35,8 @@ func main() {
 		}
 	}()
 
-	world := game.NewWorld()
-	for i := 0; i < 5; i++ {
+	world := game.NewWorld(30)
+	for range 5 {
 		goat := world.RandomGoatEntity()
 		world.Entities = append(world.Entities, goat)
 	}
