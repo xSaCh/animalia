@@ -47,6 +47,10 @@ func NewWorld() *World {
 	}
 }
 
+func (w *World) GetTick() uint {
+	return w.tick
+}
+
 func (w *World) Tick() {
 
 	/*
@@ -59,10 +63,9 @@ func (w *World) Tick() {
 
 	for _, e := range w.Entities {
 		switch e.State {
-		case common.EntityStateIdle:
-			// Do nothing ???
-			e.TargetPos = common.Vector2D{}
-		case common.EntityStateMoving:
+		case common.EntityStateRoaming:
+		case common.EntityStateFindFood:
+		case common.EntityStateFindWater:
 			if e.TargetPos.IsZero() || e.Position.SameAs(e.TargetPos) {
 				e.TargetPos = w.GetRandomWalkablePosition()
 			}
@@ -94,6 +97,7 @@ func (w *World) GetRandomWalkablePosition() common.Vector2D {
 	}
 }
 
+
 // Temp
 func (w *World) RandomGoatEntity() *Entity {
 	id := len(w.Entities) + 1
@@ -102,12 +106,12 @@ func (w *World) RandomGoatEntity() *Entity {
 		ID:        id,
 		Type:      common.EntityTypeGoat,
 		Position:  pos,
-		State:     common.EntityStateIdle,
+		State:     common.EntityStateRoaming,
 		Direction: common.Vector2D{X: 0, Y: 0},
 		Stats: common.Stats{
-			Hunger:    100,
-			Thirst:    100,
-			Tiredness: 100,
+			Hunger:    0,
+			Thirst:    0,
+			Tiredness: 0,
 		},
 	}
 }
@@ -140,7 +144,7 @@ func (w *World) DrawAsciiWorld() {
 	for _, e := range w.Entities {
 		x, y := int(e.Position.X), int(e.Position.Y)
 		if x >= 0 && x < int(w.Width) && y >= 0 && y < int(w.Height) {
-			if e.State == common.EntityStateMoving {
+			if e.State == common.EntityStateRoaming {
 				grid[y][x] = fmt.Sprintf("\033[32m%d\033[0m", e.ID) // Green for moving
 			} else {
 				grid[y][x] = fmt.Sprintf("%d", e.ID) // White for idle

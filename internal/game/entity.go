@@ -1,6 +1,10 @@
 package game
 
-import "github.com/xSaCh/animalia/internal/common"
+import (
+	"math"
+
+	"github.com/xSaCh/animalia/internal/common"
+)
 
 // Entity represents a movable entity in the world
 type Entity struct {
@@ -18,39 +22,35 @@ type Entity struct {
 }
 
 func (e *Entity) GetNextState(currentTick uint) common.EntityState {
-	switch e.State {
-	case common.EntityStateIdle:
-		if currentTick-e.lastStateChangeAt >= 20 {
-			e.lastStateChangeAt = currentTick
-			e.prevState = e.State
-			return common.EntityStateMoving
-		}
+	stats := e.Stats
+	var nextState common.EntityState
+	if stats.Thirst >= 80 {
+		nextState = common.EntityStateFindWater
+	}
+	if stats.Hunger >= 70 {
+		nextState = common.EntityStateFindFood
+	}
+	if stats.Tiredness >= 85 {
+		nextState = common.EntityStateResting
+	}
 
-	case common.EntityStateMoving:
-		if e.Stats.Tiredness > 30 {
-			e.lastStateChangeAt = currentTick
-			e.prevState = e.State
-			return common.EntityStateIdle
-		}
+	// Exit conditions
+	if nextState == common.EntityStateFindWater && stats.Thirst <= 20 {
+		nextState = common.EntityStateRoaming
 	}
-	return e.State
-	//TODO: Implement finite state machine for entity behavior
-	switch e.State {
-	case common.EntityStateIdle:
-		return common.EntityStateMoving
-	case common.EntityStateMoving:
-		return common.EntityStateEating
-	case common.EntityStateEating:
-		return common.EntityStateDrinking
-	case common.EntityStateDrinking:
-		return common.EntityStateResting
-	case common.EntityStateResting:
-		return common.EntityStateSearching
-	case common.EntityStateSearching:
-		return common.EntityStateIdle
-	default:
-		return common.EntityStateIdle
+	if nextState == common.EntityStateFindFood && stats.Hunger <= 25 {
+		nextState = common.EntityStateRoaming
 	}
+	if nextState == common.EntityStateResting && stats.Tiredness <= 30 {
+		nextState = common.EntityStateRoaming
+	}
+
+	if nextState != e.State {
+		e.prevState = e.State
+		e.lastStateChangeAt = currentTick
+		e.TargetPos = common.Vector2D{} // Reset Target Position on state change
+	}
+	return nextState
 }
 
 func (e *Entity) MoveTowardTarget() {
@@ -75,15 +75,33 @@ func (e *Entity) MoveTowardTarget() {
 }
 
 func (e *Entity) UpdateStats(currentTick uint) {
-	switch e.State {
-	case common.EntityStateMoving:
-		tickDiff := currentTick - e.lastStateChangeAt
-		if tickDiff%5 == 0 {
-			e.Stats.Hunger += 1
+	tickDiff := currentTick - e.lastStateChangeAt
+	shouldUpdate := func(n uint) int8 {
+		if tickDiff%n == 0 {
+			return 1
 		}
-		if tickDiff%10 == 0 {
-			e.Stats.Thirst += 1
-		}
-		e.Stats.Tiredness += 1
+		return 0
 	}
+	switch e.State {
+	case common.EntityStateRoaming:
+		e.Stats.Hunger += 1 * shouldUpdate(1)
+		e.Stats.Thirst += 2 * shouldUpdate(1)
+		e.Stats.Tiredness += 1 * shouldUpdate(1)
+	case common.EntityStateFindFood:
+		e.Stats.Hunger -= 3 * shouldUpdate(1)
+		e.Stats.Thirst += 1 * shouldUpdate(1)
+		e.Stats.Tiredness += 1 * shouldUpdate(1)
+	case common.EntityStateFindWater:
+		e.Stats.Thirst -= 4 * shouldUpdate(1)
+		e.Stats.Hunger += 1 * shouldUpdate(1)
+		e.Stats.Tiredness += 1 * shouldUpdate(1)
+	case common.EntityStateResting:
+		e.Stats.Tiredness -= 4 * shouldUpdate(1)
+		e.Stats.Hunger += 1 * shouldUpdate(1)
+		e.Stats.Thirst += 1 * shouldUpdate(1)
+	}
+
+	e.Stats.Hunger = int8(math.Min(100, math.Max(0, float64(e.Stats.Hunger))))
+	e.Stats.Thirst = int8(math.Min(100, math.Max(0, float64(e.Stats.Thirst))))
+	e.Stats.Tiredness = int8(math.Min(100, math.Max(0, float64(e.Stats.Tiredness))))
 }

@@ -12,12 +12,12 @@ const (
 	EntityTypeWolf EntityType = "wolf"
 
 	// EntityState
-	EntityStateIdle      EntityState = "idle"
-	EntityStateMoving    EntityState = "moving"
-	EntityStateEating    EntityState = "eating"
-	EntityStateDrinking  EntityState = "drinking"
+	// EntityStateIdle      EntityState = "idle"
+	// EntityStateSearching EntityState = "searching"
+	EntityStateRoaming    EntityState = "roaming"
+	EntityStateFindFood    EntityState = "finding_food"
+	EntityStateFindWater  EntityState = "finding_water"
 	EntityStateResting   EntityState = "resting"
-	EntityStateSearching EntityState = "searching"
 
 	// ObstacleType
 	ObstacleTypeWall        ObstacleType = "wall"
@@ -27,9 +27,9 @@ const (
 )
 
 type Stats struct {
-	Hunger    uint `json:"hunger"`    // 0-100, 0 = starving, 100 = full
-	Thirst    uint `json:"thirst"`    // 0-100, 0 = dehydrated, 100 = hydrated
-	Tiredness uint `json:"tiredness"` // 0-100, 0 = exhausted, 100 = fully rested
+	Hunger    int8 `json:"hunger"`    // 0-100, 0 = starving, 100 = full
+	Thirst    int8 `json:"thirst"`    // 0-100, 0 = dehydrated, 100 = hydrated
+	Tiredness int8 `json:"tiredness"` // 0-100, 0 = exhausted, 100 = fully rested
 }
 
 type StaticObstacle struct {
@@ -38,8 +38,8 @@ type StaticObstacle struct {
 }
 
 type StaticObstacles struct {
-	Walls        map[Vector2D]StaticObstacle `json:"walls"`
-	WaterSources map[Vector2D]StaticObstacle `json:"water_sources"`
-	FoodSources  map[Vector2D]StaticObstacle `json:"food_sources"`
-	RestAreas    map[Vector2D]StaticObstacle `json:"rest_areas"`
+	Walls        []StaticObstacle `json:"walls"`
+	WaterSources []StaticObstacle `json:"water_sources"`
+	FoodSources  []StaticObstacle `json:"food_sources"`
+	RestAreas    []StaticObstacle `json:"rest_areas"`
 }

@@ -54,7 +54,7 @@ func main() {
 		case key := <-keyChan:
 			switch key {
 			case "c":
-				world.Entities[0].State = world.Entities[0].GetNextState()
+				world.Entities[0].State = world.Entities[0].GetNextState(world.GetTick())
 			}
 		}
 	}
