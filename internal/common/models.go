@@ -8,9 +8,8 @@ type EntityState string
 type ObstacleType string
 
 const (
-	// EntityType
-	EntityTypeAnimal EntityType = "animal"
-	EntityTypeAgent  EntityType = "agent"
+	EntityTypeGoat EntityType = "goat"
+	EntityTypeWolf EntityType = "wolf"
 
 	// EntityState
 	EntityStateIdle      EntityState = "idle"
@@ -27,15 +26,6 @@ const (
 	ObstacleTypeRestArea    ObstacleType = "rest_area"
 )
 
-type Position struct {
-	X float64 `json:"x"`
-	Y float64 `json:"y"`
-}
-
-type Vector2D struct {
-	X float64 `json:"x"`
-	Y float64 `json:"y"`
-}
 
 type Stats struct {
 	Hunger    uint `json:"hunger"`    // 0-100, 0 = starving, 100 = full
@@ -45,13 +35,12 @@ type Stats struct {
 
 type StaticObstacle struct {
 	Type     ObstacleType `json:"type"`
-	Position Position     `json:"position"`
-	Size     Vector2D     `json:"size"`
+	Position Vector2D     `json:"position"`
 }
 
 type StaticObstacles struct {
-	Walls        []StaticObstacle `json:"walls"`
-	WaterSources []StaticObstacle `json:"water_sources"`
-	FoodSources  []StaticObstacle `json:"food_sources"`
-	RestAreas    []StaticObstacle `json:"rest_areas"`
+	Walls        map[Vector2D]StaticObstacle `json:"walls"`
+	WaterSources map[Vector2D]StaticObstacle `json:"water_sources"`
+	FoodSources  map[Vector2D]StaticObstacle `json:"food_sources"`
+	RestAreas    map[Vector2D]StaticObstacle `json:"rest_areas"`
 }
