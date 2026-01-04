@@ -45,12 +45,13 @@ func (e *Entity) GetNextState(currentTick uint) common.EntityState {
 		nextState = common.EntityStateRoaming
 	}
 
-	if nextState != e.State {
+	if nextState != "" {
 		e.prevState = e.State
 		e.lastStateChangeAt = currentTick
 		e.TargetPos = common.Vector2D{} // Reset Target Position on state change
+		return nextState
 	}
-	return nextState
+	return e.State
 }
 
 func (e *Entity) MoveTowardTarget() {
