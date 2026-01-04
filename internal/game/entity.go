@@ -50,6 +50,12 @@ func (e *Entity) MoveTowardTarget() {
 	dir := e.TargetPos.Subtract(e.Position)
 	distance := dir.Length()
 
+	// If close enough to target, snap to target position
+	if distance <= 0.5 {
+		e.Position = e.TargetPos
+		return
+	}
+
 	// Normalize direction vector and apply speed
 	e.Direction.X = dir.X / distance
 	e.Direction.Y = dir.Y / distance
