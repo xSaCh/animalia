@@ -1,0 +1,11 @@
+- Server is the **single source of truth**
+- All AI, movement, collisions run **server-side**
+- Client is a **read-only renderer** (no authority)
+- Same world state visible to all connected clients
+- Create and manage the world lifecycle
+- Maintain navigation grid and static objects
+- Spawn, update, and destroy entities (animals)
+- Run AI state machines and movement logic
+- Handle collisions with borders and walls
+- Tile/grid-based (ideal for isometric view)
+- Never exposed as logic to the client
