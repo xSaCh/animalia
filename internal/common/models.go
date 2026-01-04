@@ -14,9 +14,9 @@ const (
 	// EntityState
 	// EntityStateIdle      EntityState = "idle"
 	// EntityStateSearching EntityState = "searching"
-	EntityStateRoaming    EntityState = "roaming"
-	EntityStateFindFood    EntityState = "finding_food"
-	EntityStateFindWater  EntityState = "finding_water"
+	EntityStateRoaming   EntityState = "roaming"
+	EntityStateFindFood  EntityState = "finding_food"
+	EntityStateFindWater EntityState = "finding_water"
 	EntityStateResting   EntityState = "resting"
 
 	// ObstacleType

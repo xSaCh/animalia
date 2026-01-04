@@ -30,18 +30,52 @@ func NewWorld() *World {
 	for i := range grid {
 		grid[i] = make([]bool, SIZE)
 	}
-	for x := 0; x < SIZE; x++ {
-		for y := 0; y < SIZE; y++ {
+	for x := range SIZE {
+		for y := range SIZE {
 			grid[y][x] = true
 		}
 	}
-
+	// Random 5 water sources
+	waters := make([]common.StaticObstacle, 0)
+	for range 5 {
+		x := rand.Intn(SIZE)
+		y := rand.Intn(SIZE)
+		waters = append(waters, common.StaticObstacle{
+			Position: common.Vector2D{X: float64(x), Y: float64(y)},
+			Type:     common.ObstacleTypeWaterSource})
+		grid[y][x] = false
+	}
+	// Random 10 food sources
+	foods := make([]common.StaticObstacle, 0)
+	for range 10 {
+		x := rand.Intn(SIZE)
+		y := rand.Intn(SIZE)
+		foods = append(foods, common.StaticObstacle{
+			Position: common.Vector2D{X: float64(x), Y: float64(y)},
+			Type:     common.ObstacleTypeFoodSource})
+		grid[y][x] = false
+	}
+	// Random 10 obstacles
+	obstacles := make([]common.StaticObstacle, 0)
+	for range 10 {
+		x := rand.Intn(SIZE)
+		y := rand.Intn(SIZE)
+		obstacles = append(obstacles, common.StaticObstacle{
+			Position: common.Vector2D{X: float64(x), Y: float64(y)},
+			Type:     common.ObstacleTypeWall})
+		grid[y][x] = false
+	}
 	return &World{
 		ID:             001,
 		Width:          float64(SIZE),
 		Height:         float64(SIZE),
 		NavigationGrid: grid,
-		// StaticObstacles: common.NewStaticObstacles(),
+		StaticObstacles: common.StaticObstacles{
+			Walls:        obstacles,
+			WaterSources: waters,
+			FoodSources:  foods,
+			RestAreas:    make([]common.StaticObstacle, 0),
+		},
 		Entities: make([]*Entity, 0),
 		Config:   Config{TPS: 10},
 	}
@@ -64,10 +98,18 @@ func (w *World) Tick() {
 	for _, e := range w.Entities {
 		switch e.State {
 		case common.EntityStateRoaming:
-		case common.EntityStateFindFood:
-		case common.EntityStateFindWater:
 			if e.TargetPos.IsZero() || e.Position.SameAs(e.TargetPos) {
 				e.TargetPos = w.GetRandomWalkablePosition()
+			}
+			e.MoveTowardTarget()
+		case common.EntityStateFindFood:
+			if e.TargetPos.IsZero() || e.Position.SameAs(e.TargetPos) {
+				e.TargetPos = w.GetRandomFoodSourcePos()
+			}
+			e.MoveTowardTarget()
+		case common.EntityStateFindWater:
+			if e.TargetPos.IsZero() || e.Position.SameAs(e.TargetPos) {
+				e.TargetPos = w.GetRandomWaterSourcePos()
 			}
 			e.MoveTowardTarget()
 		}
@@ -97,6 +139,19 @@ func (w *World) GetRandomWalkablePosition() common.Vector2D {
 	}
 }
 
+func (w *World) GetRandomWaterSourcePos() common.Vector2D {
+	if len(w.StaticObstacles.WaterSources) == 0 {
+		return common.Vector2D{}
+	}
+	return w.StaticObstacles.WaterSources[rand.Intn(len(w.StaticObstacles.WaterSources))].Position
+}
+
+func (w *World) GetRandomFoodSourcePos() common.Vector2D {
+	if len(w.StaticObstacles.FoodSources) == 0 {
+		return common.Vector2D{}
+	}
+	return w.StaticObstacles.FoodSources[rand.Intn(len(w.StaticObstacles.FoodSources))].Position
+}
 
 // Temp
 func (w *World) RandomGoatEntity() *Entity {
@@ -117,13 +172,13 @@ func (w *World) RandomGoatEntity() *Entity {
 }
 func (w *World) PrintEntities() {
 	for _, e := range w.Entities {
-		fmt.Printf("ID: %d, Position: (%.2f, %.2f), State: %v\n", e.ID, e.Position.X, e.Position.Y, e.State)
+		fmt.Printf("ID: %d, Position: (%.2f, %.2f), State: %v | %v\n", e.ID, e.Position.X, e.Position.Y, e.State, e.State == "")
 	}
 }
 
 func (w *World) DrawAsciiWorld() {
 	// Walkable means ` `
-	// Obstacle means `#`
+	// Obstacle means `#` (white means wall, blue means water, orange means food)
 	// Entity means `<Entity_ID>` (white means idle state, green means moving state)
 	// Target means `<Entity_ID>(but in red color)`
 
@@ -137,6 +192,28 @@ func (w *World) DrawAsciiWorld() {
 			} else {
 				grid[i][j] = "#"
 			}
+		}
+	}
+	// Place obstacles on grid
+	for _, o := range w.StaticObstacles.Walls {
+		x, y := int(o.Position.X), int(o.Position.Y)
+		if x >= 0 && x < int(w.Width) && y >= 0 && y < int(w.Height) {
+			grid[y][x] = "#"
+		}
+	}
+
+	// Place water on grid
+	for _, o := range w.StaticObstacles.WaterSources {
+		x, y := int(o.Position.X), int(o.Position.Y)
+		if x >= 0 && x < int(w.Width) && y >= 0 && y < int(w.Height) {
+			grid[y][x] = "\033[34m#\033[0m" // Blue #
+		}
+	}
+	// Place food on grid
+	for _, o := range w.StaticObstacles.FoodSources {
+		x, y := int(o.Position.X), int(o.Position.Y)
+		if x >= 0 && x < int(w.Width) && y >= 0 && y < int(w.Height) {
+			grid[y][x] = "\033[33m#\033[0m" // Orange #
 		}
 	}
 
