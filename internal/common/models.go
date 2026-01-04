@@ -26,7 +26,6 @@ const (
 	ObstacleTypeRestArea    ObstacleType = "rest_area"
 )
 
-
 type Stats struct {
 	Hunger    uint `json:"hunger"`    // 0-100, 0 = starving, 100 = full
 	Thirst    uint `json:"thirst"`    // 0-100, 0 = dehydrated, 100 = hydrated

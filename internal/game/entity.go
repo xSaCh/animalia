@@ -12,19 +12,28 @@ type Entity struct {
 	TargetPos common.Vector2D    `json:"target_pos,omitempty"`
 	Stats     common.Stats       `json:"stats"`
 
-	prevState common.EntityState 
-	// lastStateChangeAt int // How entity will have access to tick ?
-	
+	prevState         common.EntityState
+	lastStateChangeAt uint // How entity will have access to tick ?
+
 }
 
-func (e *Entity) GetNextState() common.EntityState {
-	e.prevState = e.State
+func (e *Entity) GetNextState(currentTick uint) common.EntityState {
 	switch e.State {
 	case common.EntityStateIdle:
-		return common.EntityStateMoving
+		if currentTick-e.lastStateChangeAt >= 20 {
+			e.lastStateChangeAt = currentTick
+			e.prevState = e.State
+			return common.EntityStateMoving
+		}
+
 	case common.EntityStateMoving:
-		return common.EntityStateIdle
+		if e.Stats.Tiredness > 30 {
+			e.lastStateChangeAt = currentTick
+			e.prevState = e.State
+			return common.EntityStateIdle
+		}
 	}
+	return e.State
 	//TODO: Implement finite state machine for entity behavior
 	switch e.State {
 	case common.EntityStateIdle:
@@ -45,7 +54,7 @@ func (e *Entity) GetNextState() common.EntityState {
 }
 
 func (e *Entity) MoveTowardTarget() {
-	
+
 	// Calculate direction vector from current position to target
 	dir := e.TargetPos.Subtract(e.Position)
 	distance := dir.Length()
@@ -63,4 +72,18 @@ func (e *Entity) MoveTowardTarget() {
 	// Move towards target with speed of 1
 	e.Position.X += e.Direction.X
 	e.Position.Y += e.Direction.Y
+}
+
+func (e *Entity) UpdateStats(currentTick uint) {
+	switch e.State {
+	case common.EntityStateMoving:
+		tickDiff := currentTick - e.lastStateChangeAt
+		if tickDiff%5 == 0 {
+			e.Stats.Hunger += 1
+		}
+		if tickDiff%10 == 0 {
+			e.Stats.Thirst += 1
+		}
+		e.Stats.Tiredness += 1
+	}
 }

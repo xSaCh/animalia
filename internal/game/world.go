@@ -20,6 +20,8 @@ type World struct {
 	StaticObstacles common.StaticObstacles `json:"static_obstacles"`
 	Entities        []*Entity              `json:"entities"`
 	Config          Config                 `json:"config"`
+
+	tick uint
 }
 
 func NewWorld() *World {
@@ -53,6 +55,7 @@ func (w *World) Tick() {
 		- Handle Collisions
 		- Update Entity Stats
 	*/
+	w.tick++
 
 	for _, e := range w.Entities {
 		switch e.State {
@@ -71,10 +74,8 @@ func (w *World) Tick() {
 		if i == 0 {
 			continue
 		}
-		shouldChangeState := rand.Int31n(100) < 60 // 60% chance to change state
-		if shouldChangeState {
-			w.Entities[i].State = w.Entities[i].GetNextState()
-		}
+		w.Entities[i].State = w.Entities[i].GetNextState(w.tick)
+
 	}
 
 	//TODO: How to handle collisions?
