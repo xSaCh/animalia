@@ -116,15 +116,14 @@ func (w *World) Tick() {
 	}
 
 	for i := range w.Entities {
-		if i == 0 {
-			continue
-		}
 		w.Entities[i].State = w.Entities[i].GetNextState(w.tick)
-
 	}
 
 	//TODO: How to handle collisions?
-	//TODO: How to update stats ?
+	// Update Entity Stats
+	for _, e := range w.Entities {
+		e.UpdateStats(w.tick)
+	}
 
 }
 
@@ -172,14 +171,15 @@ func (w *World) RandomGoatEntity() *Entity {
 }
 func (w *World) PrintEntities() {
 	for _, e := range w.Entities {
-		fmt.Printf("ID: %d, Position: (%.2f, %.2f), State: %v | %v\n", e.ID, e.Position.X, e.Position.Y, e.State, e.State == "")
+		fmt.Printf("ID: %d, Position: (%.2f, %.2f), State: %v, Stats: [%d %d %d]\n",
+			e.ID, e.Position.X, e.Position.Y, e.State, e.Stats.Hunger, e.Stats.Thirst, e.Stats.Tiredness)
 	}
 }
 
 func (w *World) DrawAsciiWorld() {
 	// Walkable means ` `
-	// Obstacle means `#` (white means wall, blue means water, orange means food)
-	// Entity means `<Entity_ID>` (white means idle state, green means moving state)
+	// Obstacle means `#` (white means wall, blue means water, yellow means food)
+	// Entity means `<Entity_ID>` (white means idle state, yellow means finding food/water, green means roaming)
 	// Target means `<Entity_ID>(but in red color)`
 
 	// Create display grid
@@ -221,9 +221,12 @@ func (w *World) DrawAsciiWorld() {
 	for _, e := range w.Entities {
 		x, y := int(e.Position.X), int(e.Position.Y)
 		if x >= 0 && x < int(w.Width) && y >= 0 && y < int(w.Height) {
-			if e.State == common.EntityStateRoaming {
+			switch e.State {
+			case common.EntityStateRoaming:
 				grid[y][x] = fmt.Sprintf("\033[32m%d\033[0m", e.ID) // Green for moving
-			} else {
+			case common.EntityStateFindFood, common.EntityStateFindWater:
+				grid[y][x] = fmt.Sprintf("\033[33m%d\033[0m", e.ID) // Yellow for finding food/water
+			default:
 				grid[y][x] = fmt.Sprintf("%d", e.ID) // White for idle
 			}
 		}
@@ -232,7 +235,7 @@ func (w *World) DrawAsciiWorld() {
 		if !e.TargetPos.IsZero() {
 			tx, ty := int(e.TargetPos.X), int(e.TargetPos.Y)
 			if tx >= 0 && tx < int(w.Width) && ty >= 0 && ty < int(w.Height) {
-				grid[ty][tx] = fmt.Sprintf("\033[31m%d\033[0m", e.ID)
+				// grid[ty][tx] = fmt.Sprintf("\033[31m%d\033[0m", e.ID)
 			}
 		}
 	}
