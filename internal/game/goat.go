@@ -5,7 +5,7 @@ import (
 	"math"
 
 	"github.com/xSaCh/animalia/internal/common"
-	"github.com/xSaCh/animalia/internal/game/bt"
+	"github.com/xSaCh/animalia/internal/game/btree"
 )
 
 type Goat struct {
@@ -36,36 +36,36 @@ func NewGoat(id int, position common.Vector2D) *Goat {
 	}
 }
 
-func createGoatBehaviorTree() bt.Node {
-	idGen := bt.NewIDGenerator()
+func createGoatBehaviorTree() btree.Node {
+	idGen := btree.NewIDGenerator()
 	
-	findWaterSource := func(ctx *bt.TickContext) bt.Status {
+	findWaterSource := func(ctx *btree.TickContext) btree.Status {
 		goat := ctx.BlackBoard.(*Goat)
 		world := ctx.World.(*World)
 
 		// Find nearest water source
 		waterPos := world.GetRandomWaterSourcePos()
 		if waterPos.IsZero() {
-			return bt.Failure // No water source available
+			return btree.Failure // No water source available
 		}
 		goat.TargetPos = &waterPos
 		goat.State = common.EntityStateFindWater
-		return bt.Success
+		return btree.Success
 	}
-	findFoodSource := func(ctx *bt.TickContext) bt.Status {
+	findFoodSource := func(ctx *btree.TickContext) btree.Status {
 		goat := ctx.BlackBoard.(*Goat)
 		world := ctx.World.(*World)
 
 		// Find nearest food source
 		foodPos := world.GetRandomFoodSourcePos()
 		if foodPos.IsZero() {
-			return bt.Failure // No food source available
+			return btree.Failure // No food source available
 		}
 		goat.TargetPos = &foodPos
 		goat.State = common.EntityStateFindFood
-		return bt.Success
+		return btree.Success
 	}
-	findRestingSpot := func(ctx *bt.TickContext) bt.Status {
+	findRestingSpot := func(ctx *btree.TickContext) btree.Status {
 		goat := ctx.BlackBoard.(*Goat)
 		world := ctx.World.(*World)
 
@@ -73,9 +73,9 @@ func createGoatBehaviorTree() bt.Node {
 		restPos := world.GetRandomWalkablePosition()
 		goat.TargetPos = &restPos
 		goat.State = common.EntityStateResting
-		return bt.Success
+		return btree.Success
 	}
-	findRoamingPosition := func(ctx *bt.TickContext) bt.Status {
+	findRoamingPosition := func(ctx *btree.TickContext) btree.Status {
 		goat := ctx.BlackBoard.(*Goat)
 		world := ctx.World.(*World)
 
@@ -85,17 +85,17 @@ func createGoatBehaviorTree() bt.Node {
 			goat.TargetPos = &roamPos
 		}
 		goat.State = common.EntityStateRoaming
-		return bt.Success
+		return btree.Success
 	}
 
-	moveToWaterAndDrink := func(ctx *bt.TickContext) bt.Status {
+	moveToWaterAndDrink := func(ctx *btree.TickContext) btree.Status {
 		goat := ctx.BlackBoard.(*Goat)
 
 		// Check if reached target
 		if goat.TargetPos != nil && goat.Position.Distance(*goat.TargetPos) > 0.5 {
 			goat.MoveTowardTarget()
 			goat.updateStatsDuringWalk()
-			return bt.Running
+			return btree.Running
 		}
 
 		fmt.Printf("Goat %d is thirsty. Moving to water source at (%.2f, %.2f)\n", goat.ID, goat.TargetPos.X, goat.TargetPos.Y)
@@ -103,19 +103,19 @@ func createGoatBehaviorTree() bt.Node {
 		goat.Stats.Thirst -= 2
 		if goat.Stats.Thirst <= 20 {
 			goat.TargetPos = nil
-			return bt.Success
+			return btree.Success
 		}
-		return bt.Running
+		return btree.Running
 	}
 
-	moveToFoodAndEat := func(ctx *bt.TickContext) bt.Status {
+	moveToFoodAndEat := func(ctx *btree.TickContext) btree.Status {
 		goat := ctx.BlackBoard.(*Goat)
 
 		// Check if reached target
 		if goat.TargetPos != nil && goat.Position.Distance(*goat.TargetPos) > 0.5 {
 			goat.MoveTowardTarget()
 			goat.updateStatsDuringWalk()
-			return bt.Running
+			return btree.Running
 		}
 
 		fmt.Printf("Goat %d is hungry. Moving to food source at (%.2f, %.2f)\n", goat.ID, goat.TargetPos.X, goat.TargetPos.Y)
@@ -123,19 +123,19 @@ func createGoatBehaviorTree() bt.Node {
 		goat.Stats.Hunger -= 2
 		if goat.Stats.Hunger <= 25 {
 			goat.TargetPos = nil
-			return bt.Success
+			return btree.Success
 		}
-		return bt.Running
+		return btree.Running
 	}
 
-	moveToRestingSpotAndRest := func(ctx *bt.TickContext) bt.Status {
+	moveToRestingSpotAndRest := func(ctx *btree.TickContext) btree.Status {
 		goat := ctx.BlackBoard.(*Goat)
 
 		// Check if reached resting spot
 		if goat.TargetPos != nil && goat.Position.Distance(*goat.TargetPos) > 0.5 {
 			goat.MoveTowardTarget()
 			goat.updateStatsDuringWalk()
-			return bt.Running
+			return btree.Running
 		}
 
 		fmt.Printf("Goat %d is tired. Moving to resting spot at (%.2f, %.2f)\n", goat.ID, goat.TargetPos.X, goat.TargetPos.Y)
@@ -143,12 +143,12 @@ func createGoatBehaviorTree() bt.Node {
 		goat.Stats.Tiredness -= 2
 		if goat.Stats.Tiredness <= 30 {
 			goat.TargetPos = nil
-			return bt.Success
+			return btree.Success
 		}
-		return bt.Running
+		return btree.Running
 	}
 
-	moveWhileRoaming := func(ctx *bt.TickContext) bt.Status {
+	moveWhileRoaming := func(ctx *btree.TickContext) btree.Status {
 		goat := ctx.BlackBoard.(*Goat)
 		world := ctx.World.(*World)
 
@@ -156,47 +156,47 @@ func createGoatBehaviorTree() bt.Node {
 		if goat.TargetPos != nil && goat.Position.Distance(*goat.TargetPos) > 0.5 {
 			goat.MoveTowardTarget()
 			goat.updateStatsDuringWalk()
-			return bt.Running
+			return btree.Running
 		}
 		fmt.Printf("Goat %d is idling at (%.2f, %.2f)\n", goat.ID, goat.TargetPos.X, goat.TargetPos.Y)
 		if world.GetTick()%40 == 0 {
-			return bt.Success
+			return btree.Success
 		}
-		return bt.Running
+		return btree.Running
 	}
 
-	return bt.NewSelector(idGen.Next(),
+	return btree.NewSelector(idGen.Next(),
 		// Handle Thirst
-		bt.NewSequence(idGen.Next(),
-			bt.NewCondition(idGen.Next(), func(ctx *bt.TickContext) bool {
+		btree.NewSequence(idGen.Next(),
+			btree.NewCondition(idGen.Next(), func(ctx *btree.TickContext) bool {
 				return ctx.BlackBoard.(*Goat).Stats.Thirst >= 80
 			}),
-			bt.NewAction(idGen.Next(), findWaterSource),
-			bt.NewAction(idGen.Next(), moveToWaterAndDrink),
+			btree.NewAction(idGen.Next(), findWaterSource),
+			btree.NewAction(idGen.Next(), moveToWaterAndDrink),
 		),
 
 		// Handle Hunger
-		bt.NewSequence(idGen.Next(),
-			bt.NewCondition(idGen.Next(), func(ctx *bt.TickContext) bool {
+		btree.NewSequence(idGen.Next(),
+			btree.NewCondition(idGen.Next(), func(ctx *btree.TickContext) bool {
 				return ctx.BlackBoard.(*Goat).Stats.Hunger >= 80
 			}),
-			bt.NewAction(idGen.Next(), findFoodSource),
-			bt.NewAction(idGen.Next(), moveToFoodAndEat),
+			btree.NewAction(idGen.Next(), findFoodSource),
+			btree.NewAction(idGen.Next(), moveToFoodAndEat),
 		),
 
 		// Handle Tiredness
-		bt.NewSequence(idGen.Next(),
-			bt.NewCondition(idGen.Next(), func(ctx *bt.TickContext) bool {
+		btree.NewSequence(idGen.Next(),
+			btree.NewCondition(idGen.Next(), func(ctx *btree.TickContext) bool {
 				return ctx.BlackBoard.(*Goat).Stats.Tiredness >= 80
 			}),
-			bt.NewAction(idGen.Next(), findRestingSpot),
-			bt.NewAction(idGen.Next(), moveToRestingSpotAndRest),
+			btree.NewAction(idGen.Next(), findRestingSpot),
+			btree.NewAction(idGen.Next(), moveToRestingSpotAndRest),
 		),
 
 		// default roaming
-		bt.NewSequence(idGen.Next(),
-			bt.NewAction(idGen.Next(), findRoamingPosition),
-			bt.NewAction(idGen.Next(), moveWhileRoaming),
+		btree.NewSequence(idGen.Next(),
+			btree.NewAction(idGen.Next(), findRoamingPosition),
+			btree.NewAction(idGen.Next(), moveWhileRoaming),
 		),
 	)
 }
@@ -213,7 +213,7 @@ func (g *Goat) updateStatsDuringWalk() {
 
 // Tick executes the ent's behavior tree
 func (g *Goat) Tick(world *World) {
-	ctx := &bt.TickContext{
+	ctx := &btree.TickContext{
 		BlackBoard: g,
 		World:      world,
 		NodeStates: g.btState,

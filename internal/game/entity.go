@@ -2,7 +2,7 @@ package game
 
 import (
 	"github.com/xSaCh/animalia/internal/common"
-	"github.com/xSaCh/animalia/internal/game/bt"
+	"github.com/xSaCh/animalia/internal/game/btree"
 )
 
 type Entity interface {
@@ -23,7 +23,7 @@ type BaseEntity struct {
 	prevState         common.EntityState
 	lastStateChangeAt uint // How entity will have access to tick ?
 
-	bt      bt.Node
+	bt      btree.Node
 	btState []int // Track state for each node in behavior tree
 
 }

@@ -1,4 +1,4 @@
-package bt
+package btree
 
 // How to use bt
 
@@ -63,7 +63,7 @@ func NewGuard(id int, info GuardInfo) *Guard {
 
 	// Use ID generator to automatically assign IDs
 	idGen := NewIDGenerator()
-	
+
 	bt := NewSelector(idGen.Next(),
 		NewSequence(idGen.Next(),
 			NewCondition(idGen.Next(), isPlayerVisible),
