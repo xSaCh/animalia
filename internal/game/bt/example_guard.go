@@ -61,22 +61,25 @@ func NewGuard(id int, info GuardInfo) *Guard {
 		return Success
 	}
 
-	bt := NewSelector(1,
-		NewSequence(2,
-			NewCondition(3, isPlayerVisible),
-			NewSelector(4,
-				NewSequence(5,
-					NewCondition(6, isPlayerInRange),
-					NewAction(7, attack),
+	// Use ID generator to automatically assign IDs
+	idGen := NewIDGenerator()
+	
+	bt := NewSelector(idGen.Next(),
+		NewSequence(idGen.Next(),
+			NewCondition(idGen.Next(), isPlayerVisible),
+			NewSelector(idGen.Next(),
+				NewSequence(idGen.Next(),
+					NewCondition(idGen.Next(), isPlayerInRange),
+					NewAction(idGen.Next(), attack),
 				),
-				NewAction(8, chase),
+				NewAction(idGen.Next(), chase),
 			),
 		),
-		NewSequence(9,
-			NewCondition(10, lowHealth),
-			NewAction(11, findCoverAndHeal),
+		NewSequence(idGen.Next(),
+			NewCondition(idGen.Next(), lowHealth),
+			NewAction(idGen.Next(), findCoverAndHeal),
 		),
-		NewAction(12, patrol),
+		NewAction(idGen.Next(), patrol),
 	)
 	return &Guard{
 		id:   id,
@@ -89,7 +92,7 @@ func usage() {
 	guard := NewGuard(1, GuardInfo{PlayerPos: 5, Health: 100})
 	ctx := &TickContext{
 		BlackBoard: &guard.info,
-		NodeStates: make([]int, 13), // allocate for node IDs 0-12
+		NodeStates: make([]int, 20), // allocate enough space for all node IDs
 	}
 
 	// Tick the behavior tree

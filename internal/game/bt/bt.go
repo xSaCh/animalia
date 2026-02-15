@@ -117,6 +117,22 @@ func (a *Condition) Tick(ctx *TickContext) Status {
 	return Failure
 }
 
+// IDGenerator provides auto-incrementing IDs for behavior tree nodes
+type IDGenerator struct {
+	counter int
+}
+
+// NewIDGenerator creates a new ID generator starting from 0
+func NewIDGenerator() *IDGenerator {
+	return &IDGenerator{counter: 0}
+}
+
+// Next returns the next available ID
+func (g *IDGenerator) Next() int {
+	g.counter++
+	return g.counter
+}
+
 // Constructors
 
 func NewSequence(id int, children ...Node) *Sequence {

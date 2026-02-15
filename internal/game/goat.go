@@ -37,6 +37,8 @@ func NewGoat(id int, position common.Vector2D) *Goat {
 }
 
 func createGoatBehaviorTree() bt.Node {
+	idGen := bt.NewIDGenerator()
+	
 	findWaterSource := func(ctx *bt.TickContext) bt.Status {
 		goat := ctx.BlackBoard.(*Goat)
 		world := ctx.World.(*World)
@@ -163,38 +165,38 @@ func createGoatBehaviorTree() bt.Node {
 		return bt.Running
 	}
 
-	return bt.NewSelector(1,
+	return bt.NewSelector(idGen.Next(),
 		// Handle Thirst
-		bt.NewSequence(2,
-			bt.NewCondition(3, func(ctx *bt.TickContext) bool {
+		bt.NewSequence(idGen.Next(),
+			bt.NewCondition(idGen.Next(), func(ctx *bt.TickContext) bool {
 				return ctx.BlackBoard.(*Goat).Stats.Thirst >= 80
 			}),
-			bt.NewAction(4, findWaterSource),
-			bt.NewAction(5, moveToWaterAndDrink),
+			bt.NewAction(idGen.Next(), findWaterSource),
+			bt.NewAction(idGen.Next(), moveToWaterAndDrink),
 		),
 
 		// Handle Hunger
-		bt.NewSequence(6,
-			bt.NewCondition(7, func(ctx *bt.TickContext) bool {
+		bt.NewSequence(idGen.Next(),
+			bt.NewCondition(idGen.Next(), func(ctx *bt.TickContext) bool {
 				return ctx.BlackBoard.(*Goat).Stats.Hunger >= 80
 			}),
-			bt.NewAction(8, findFoodSource),
-			bt.NewAction(9, moveToFoodAndEat),
+			bt.NewAction(idGen.Next(), findFoodSource),
+			bt.NewAction(idGen.Next(), moveToFoodAndEat),
 		),
 
 		// Handle Tiredness
-		bt.NewSequence(10,
-			bt.NewCondition(11, func(ctx *bt.TickContext) bool {
+		bt.NewSequence(idGen.Next(),
+			bt.NewCondition(idGen.Next(), func(ctx *bt.TickContext) bool {
 				return ctx.BlackBoard.(*Goat).Stats.Tiredness >= 80
 			}),
-			bt.NewAction(12, findRestingSpot),
-			bt.NewAction(13, moveToRestingSpotAndRest),
+			bt.NewAction(idGen.Next(), findRestingSpot),
+			bt.NewAction(idGen.Next(), moveToRestingSpotAndRest),
 		),
 
 		// default roaming
-		bt.NewSequence(14,
-			bt.NewAction(15, findRoamingPosition),
-			bt.NewAction(16, moveWhileRoaming),
+		bt.NewSequence(idGen.Next(),
+			bt.NewAction(idGen.Next(), findRoamingPosition),
+			bt.NewAction(idGen.Next(), moveWhileRoaming),
 		),
 	)
 }
