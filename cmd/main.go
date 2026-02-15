@@ -4,17 +4,15 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"math/rand"
 	"os"
 	"os/signal"
 	"time"
 
-	"github.com/xSaCh/animalia/internal/common"
 	"github.com/xSaCh/animalia/internal/game"
 )
 
 const (
-	TICKS_PER_SECOND = 10
+	TICKS_PER_SECOND = 5
 )
 
 func main() {
@@ -38,15 +36,9 @@ func main() {
 	}()
 
 	world := game.NewWorld(30)
-	for range 5 {
-		goat := world.RandomGoatEntity()
-		states := []common.EntityState{
-			common.EntityStateFindFood,
-			common.EntityStateFindWater,
-			common.EntityStateResting,
-			common.EntityStateRoaming,
-		}
-		goat.State = states[rand.Intn(len(states))]
+	for i := range 1 {
+		pos := world.GetRandomWalkablePosition()
+		goat := game.NewGoat(i+1, pos)
 		world.Entities = append(world.Entities, goat)
 	}
 	for {
@@ -63,7 +55,9 @@ func main() {
 		case key := <-keyChan:
 			switch key {
 			case "c":
-				world.Entities[0].State = world.Entities[0].GetNextState(world.GetTick())
+				// Manual state changes are now handled by behavior tree
+				// world.Goats[0].State = ... (states are determined by BT)
+				_ = key
 			}
 		}
 	}
