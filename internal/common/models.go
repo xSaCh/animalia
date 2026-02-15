@@ -27,9 +27,9 @@ const (
 )
 
 type Stats struct {
-	Hunger    int8 `json:"hunger"`    // 0-100, 0 = starving, 100 = full
-	Thirst    int8 `json:"thirst"`    // 0-100, 0 = dehydrated, 100 = hydrated
-	Tiredness int8 `json:"tiredness"` // 0-100, 0 = exhausted, 100 = fully rested
+	Hunger    int8 `json:"hunger"`    // 0-100, 0 = full, 100 = starving
+	Thirst    int8 `json:"thirst"`    // 0-100, 0 = hydrated, 100 = dehydrated
+	Tiredness int8 `json:"tiredness"` // 0-100, 0 = fully rested, 100 = exhausted
 }
 
 type StaticObstacle struct {

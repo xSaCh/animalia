@@ -18,7 +18,7 @@ type World struct {
 	Height          float64                `json:"height"`
 	NavigationGrid  [][]bool               `json:"navigation_grid"` // true = walkable, false = blocked
 	StaticObstacles common.StaticObstacles `json:"static_obstacles"`
-	Entities        []*Entity              `json:"entities"`
+	Entities        []Entity               `json:"entities"`
 	Config          Config                 `json:"config"`
 
 	tick uint
@@ -76,7 +76,7 @@ func NewWorld(size int) *World {
 			FoodSources:  foods,
 			RestAreas:    make([]common.StaticObstacle, 0),
 		},
-		Entities: make([]*Entity, 0),
+		Entities: make([]Entity, 0),
 		Config:   Config{TPS: 10},
 	}
 }
@@ -88,47 +88,17 @@ func (w *World) GetTick() uint {
 func (w *World) Tick() {
 
 	/*
-		- Excute Current State
+		- Execute Current State (via behavior tree for Goats, legacy for Entities)
 		- Update Entity State
 		- Handle Collisions
 		- Update Entity Stats
 	*/
 	w.tick++
 
-	for _, e := range w.Entities {
-		switch e.State {
-		case common.EntityStateRoaming:
-			p := w.GetRandomWalkablePosition()
-			if e.TargetPos == nil {
-				e.TargetPos = &p
-			}
-			e.MoveTowardTarget()
-		case common.EntityStateFindFood:
-			p := w.GetRandomFoodSourcePos()
-			if e.TargetPos == nil {
-				e.TargetPos = &p
-			}
-			e.MoveTowardTarget()
-		case common.EntityStateFindWater:
-			p := w.GetRandomFoodSourcePos()
-
-			if e.TargetPos == nil {
-				e.TargetPos = &p
-			}
-			e.MoveTowardTarget()
-		}
+	// Tick goats using behavior trees
+	for _, goat := range w.Entities {
+		goat.Tick(w)
 	}
-
-	for i := range w.Entities {
-		w.Entities[i].State = w.Entities[i].GetNextState(w.tick)
-	}
-
-	//TODO: How to handle collisions?
-	// Update Entity Stats
-	for _, e := range w.Entities {
-		e.UpdateStats(w.tick)
-	}
-
 }
 
 func (w *World) GetRandomWalkablePosition() common.Vector2D {
@@ -157,10 +127,10 @@ func (w *World) GetRandomFoodSourcePos() common.Vector2D {
 }
 
 // Temp
-func (w *World) RandomGoatEntity() *Entity {
+func (w *World) RandomGoatEntity() *BaseEntity {
 	id := len(w.Entities) + 1
 	pos := w.GetRandomWalkablePosition()
-	return &Entity{
+	return &BaseEntity{
 		ID:        id,
 		Type:      common.EntityTypeGoat,
 		Position:  pos,
@@ -174,7 +144,9 @@ func (w *World) RandomGoatEntity() *Entity {
 	}
 }
 func (w *World) PrintEntities() {
-	for _, e := range w.Entities {
+	// Print legacy entities
+	for _, eI := range w.Entities {
+		e := eI.GetBaseEntity()
 		fmt.Printf("ID: %d, Position: (%.2f, %.2f), State: %v, Stats: [%d %d %d]\n",
 			e.ID, e.Position.X, e.Position.Y, e.State, e.Stats.Hunger, e.Stats.Thirst, e.Stats.Tiredness)
 	}
@@ -222,7 +194,8 @@ func (w *World) DrawAsciiWorld() {
 	}
 
 	// Place entities on grid
-	for _, e := range w.Entities {
+	for _, eI := range w.Entities {
+		e := eI.GetBaseEntity()
 		x, y := int(e.Position.X), int(e.Position.Y)
 		if x >= 0 && x < int(w.Width) && y >= 0 && y < int(w.Height) {
 			switch e.State {
@@ -236,7 +209,7 @@ func (w *World) DrawAsciiWorld() {
 		}
 
 		// Place target position in red
-		if !e.TargetPos.IsZero() {
+		if e.TargetPos != nil {
 			tx, ty := int(e.TargetPos.X), int(e.TargetPos.Y)
 			if tx >= 0 && tx < int(w.Width) && ty >= 0 && ty < int(w.Height) {
 				// grid[ty][tx] = fmt.Sprintf("\033[31m%d\033[0m", e.ID)

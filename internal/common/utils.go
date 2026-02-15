@@ -33,3 +33,7 @@ func (v Vector2D) Magnitude() float64 {
 func (v Vector2D) Length() float64 {
 	return math.Sqrt(v.Magnitude())
 }
+
+func (v Vector2D) Distance(other Vector2D) float64 {
+	return v.Subtract(other).Length()
+}

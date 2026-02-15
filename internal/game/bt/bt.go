@@ -19,6 +19,7 @@ const (
 
 type TickContext struct {
 	BlackBoard any
+	World      any // Reference to world for accessing game state
 	NodeStates []int
 }
 
