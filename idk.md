@@ -42,3 +42,26 @@
             Hunger    += 1
             Thirst    += 1
             BREAK
+
+## Behavior Trees
+If thirsty find water 
+if hungry find food 
+if tired find rest Area
+    rest for a while
+Find Roam Pos
+    Roam to that pos
+
+Root (Selector)
+├─ Sequence: (Thirst) -> Find Water
+│   ├─ Condition: is_thirsty?
+│   └─ Action: find_water
+└─ Sequence: (Hunger) -> Find Food
+│   ├─ Condition: is_hungry?
+│   └─ Action: find_food
+└─ Sequence: (Tiredness) -> Rest
+│   ├─ Condition: is_tired?
+│   ├─ Condition: find_rest_area?
+│   └─ Action: rest
+└─ Sequence: (Roam) -> Roam
+    ├─ Condition: find_roam_pos?
+    └─ Action: roam_to_pos
