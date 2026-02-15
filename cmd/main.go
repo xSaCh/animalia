@@ -4,10 +4,12 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"math/rand"
 	"os"
 	"os/signal"
 	"time"
 
+	"github.com/xSaCh/animalia/internal/common"
 	"github.com/xSaCh/animalia/internal/game"
 )
 
@@ -19,7 +21,7 @@ func main() {
 	milliseconds := 1000 / TICKS_PER_SECOND
 
 	ticker := time.NewTicker(time.Millisecond * time.Duration(milliseconds))
-	renderTicker := time.NewTicker(time.Millisecond * time.Duration(500)) 
+	renderTicker := time.NewTicker(time.Millisecond * time.Duration(500))
 	defer ticker.Stop()
 	defer renderTicker.Stop()
 
@@ -38,6 +40,13 @@ func main() {
 	world := game.NewWorld(30)
 	for range 5 {
 		goat := world.RandomGoatEntity()
+		states := []common.EntityState{
+			common.EntityStateFindFood,
+			common.EntityStateFindWater,
+			common.EntityStateResting,
+			common.EntityStateRoaming,
+		}
+		goat.State = states[rand.Intn(len(states))]
 		world.Entities = append(world.Entities, goat)
 	}
 	for {
