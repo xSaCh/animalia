@@ -119,13 +119,13 @@ func (a *Condition) Tick(ctx *TickContext) Status {
 
 // Constructors
 
-func NewSequence(id int, children []Node) *Sequence {
+func NewSequence(id int, children ...Node) *Sequence {
 	return &Sequence{
 		id:       id,
 		children: children,
 	}
 }
-func NewSelector(id int, children []Node) *Selector {
+func NewSelector(id int, children ...Node) *Selector {
 	return &Selector{
 		id:       id,
 		children: children,

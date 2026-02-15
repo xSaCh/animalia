@@ -61,23 +61,23 @@ func NewGuard(id int, info GuardInfo) *Guard {
 		return Success
 	}
 
-	bt := NewSelector(1, []Node{
-		NewSequence(2, []Node{
+	bt := NewSelector(1,
+		NewSequence(2,
 			NewCondition(3, isPlayerVisible),
-			NewSelector(4, []Node{
-				NewSequence(5, []Node{
+			NewSelector(4,
+				NewSequence(5,
 					NewCondition(6, isPlayerInRange),
 					NewAction(7, attack),
-				}),
+				),
 				NewAction(8, chase),
-			}),
-		}),
-		NewSequence(9, []Node{
+			),
+		),
+		NewSequence(9,
 			NewCondition(10, lowHealth),
 			NewAction(11, findCoverAndHeal),
-		}),
+		),
 		NewAction(12, patrol),
-	})
+	)
 	return &Guard{
 		id:   id,
 		info: info,

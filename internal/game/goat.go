@@ -86,7 +86,6 @@ func createGoatBehaviorTree() bt.Node {
 		return bt.Success
 	}
 
-
 	moveToWaterAndDrink := func(ctx *bt.TickContext) bt.Status {
 		goat := ctx.BlackBoard.(*Goat)
 
@@ -109,14 +108,14 @@ func createGoatBehaviorTree() bt.Node {
 
 	moveToFoodAndEat := func(ctx *bt.TickContext) bt.Status {
 		goat := ctx.BlackBoard.(*Goat)
-		
+
 		// Check if reached target
 		if goat.TargetPos != nil && goat.Position.Distance(*goat.TargetPos) > 0.5 {
 			goat.MoveTowardTarget()
 			goat.updateStatsDuringWalk()
 			return bt.Running
 		}
-		
+
 		fmt.Printf("Goat %d is hungry. Moving to food source at (%.2f, %.2f)\n", goat.ID, goat.TargetPos.X, goat.TargetPos.Y)
 		// Eat food
 		goat.Stats.Hunger -= 2
@@ -149,8 +148,8 @@ func createGoatBehaviorTree() bt.Node {
 
 	moveWhileRoaming := func(ctx *bt.TickContext) bt.Status {
 		goat := ctx.BlackBoard.(*Goat)
-		world := ctx.World.(*World) 
-		
+		world := ctx.World.(*World)
+
 		// Check if reached target pos
 		if goat.TargetPos != nil && goat.Position.Distance(*goat.TargetPos) > 0.5 {
 			goat.MoveTowardTarget()
@@ -158,46 +157,46 @@ func createGoatBehaviorTree() bt.Node {
 			return bt.Running
 		}
 		fmt.Printf("Goat %d is idling at (%.2f, %.2f)\n", goat.ID, goat.TargetPos.X, goat.TargetPos.Y)
-		if world.GetTick() % 40 == 0 {
+		if world.GetTick()%40 == 0 {
 			return bt.Success
 		}
 		return bt.Running
 	}
 
-	return bt.NewSelector(1, []bt.Node{
+	return bt.NewSelector(1,
 		// Handle Thirst
-		bt.NewSequence(2, []bt.Node{
+		bt.NewSequence(2,
 			bt.NewCondition(3, func(ctx *bt.TickContext) bool {
 				return ctx.BlackBoard.(*Goat).Stats.Thirst >= 80
 			}),
 			bt.NewAction(4, findWaterSource),
 			bt.NewAction(5, moveToWaterAndDrink),
-		}),
+		),
 
 		// Handle Hunger
-		bt.NewSequence(6, []bt.Node{
+		bt.NewSequence(6,
 			bt.NewCondition(7, func(ctx *bt.TickContext) bool {
 				return ctx.BlackBoard.(*Goat).Stats.Hunger >= 80
 			}),
 			bt.NewAction(8, findFoodSource),
 			bt.NewAction(9, moveToFoodAndEat),
-		}),
+		),
 
 		// Handle Tiredness
-		bt.NewSequence(10, []bt.Node{
+		bt.NewSequence(10,
 			bt.NewCondition(11, func(ctx *bt.TickContext) bool {
 				return ctx.BlackBoard.(*Goat).Stats.Tiredness >= 80
 			}),
 			bt.NewAction(12, findRestingSpot),
 			bt.NewAction(13, moveToRestingSpotAndRest),
-		}),
+		),
 
 		// default roaming
-		bt.NewSequence(14, []bt.Node{
+		bt.NewSequence(14,
 			bt.NewAction(15, findRoamingPosition),
 			bt.NewAction(16, moveWhileRoaming),
-		}),
-	})
+		),
+	)
 }
 
 func (g *Goat) updateStatsDuringWalk() {
