@@ -13,7 +13,7 @@ type Entity struct {
 	Position  common.Vector2D    `json:"position"`
 	State     common.EntityState `json:"state"`
 	Direction common.Vector2D    `json:"direction"` // Direction vector/velocity
-	TargetPos common.Vector2D    `json:"target_pos,omitempty"`
+	TargetPos *common.Vector2D    `json:"target_pos,omitempty"`
 	Stats     common.Stats       `json:"stats"`
 
 	prevState         common.EntityState
@@ -48,7 +48,7 @@ func (e *Entity) GetNextState(currentTick uint) common.EntityState {
 	if nextState != "" {
 		e.prevState = e.State
 		e.lastStateChangeAt = currentTick
-		e.TargetPos = common.Vector2D{} // Reset Target Position on state change
+		e.TargetPos = nil // Reset Target Position on state change
 		return nextState
 	}
 	return e.State
@@ -62,7 +62,7 @@ func (e *Entity) MoveTowardTarget() {
 
 	// If close enough to target, snap to target position
 	if distance <= 0.5 {
-		e.Position = e.TargetPos
+		e.Position = *e.TargetPos
 		return
 	}
 

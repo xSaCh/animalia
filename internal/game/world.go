@@ -98,18 +98,22 @@ func (w *World) Tick() {
 	for _, e := range w.Entities {
 		switch e.State {
 		case common.EntityStateRoaming:
-			if e.TargetPos.IsZero() || e.Position.SameAs(e.TargetPos) {
-				e.TargetPos = w.GetRandomWalkablePosition()
+			p := w.GetRandomWalkablePosition()
+			if e.TargetPos == nil {
+				e.TargetPos = &p
 			}
 			e.MoveTowardTarget()
 		case common.EntityStateFindFood:
-			if e.TargetPos.IsZero() || e.Position.SameAs(e.TargetPos) {
-				e.TargetPos = w.GetRandomFoodSourcePos()
+			p := w.GetRandomFoodSourcePos()
+			if e.TargetPos == nil {
+				e.TargetPos = &p
 			}
 			e.MoveTowardTarget()
 		case common.EntityStateFindWater:
-			if e.TargetPos.IsZero() || e.Position.SameAs(e.TargetPos) {
-				e.TargetPos = w.GetRandomWaterSourcePos()
+			p := w.GetRandomFoodSourcePos()
+
+			if e.TargetPos == nil {
+				e.TargetPos = &p
 			}
 			e.MoveTowardTarget()
 		}
