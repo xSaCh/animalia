@@ -24,7 +24,7 @@ type World struct {
 	tick uint
 }
 
-func NewWorld(size int) *World {
+func NewWorld(size int, tps int) *World {
 	// SIZE := 30
 	grid := make([][]bool, size)
 	for i := range grid {
@@ -77,7 +77,7 @@ func NewWorld(size int) *World {
 			RestAreas:    make([]common.StaticObstacle, 0),
 		},
 		Entities: make([]Entity, 0),
-		Config:   Config{TPS: 10},
+		Config:   Config{TPS: tps},
 	}
 }
 
@@ -201,7 +201,7 @@ func (w *World) DrawAsciiWorld() {
 			switch e.State {
 			case common.EntityStateRoaming:
 				grid[y][x] = fmt.Sprintf("\033[32m%d\033[0m", e.ID) // Green for moving
-			case common.EntityStateFindFood, common.EntityStateFindWater:
+			case common.EntityStateEating, common.EntityStateDrinking:
 				grid[y][x] = fmt.Sprintf("\033[33m%d\033[0m", e.ID) // Yellow for finding food/water
 			default:
 				grid[y][x] = fmt.Sprintf("%d", e.ID) // White for idle

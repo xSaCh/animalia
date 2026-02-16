@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/signal"
@@ -35,7 +36,7 @@ func main() {
 		}
 	}()
 
-	world := game.NewWorld(30)
+	world := game.NewWorld(30, TICKS_PER_SECOND)
 	for i := range 1 {
 		pos := world.GetRandomWalkablePosition()
 		goat := game.NewGoat(i+1, pos)
@@ -49,8 +50,9 @@ func main() {
 			world.Tick()
 		case <-renderTicker.C:
 			clearConsole()
-			world.DrawAsciiWorld()
-			world.PrintEntities()
+			json.NewEncoder(os.Stdout).Encode(world)
+			// world.DrawAsciiWorld()
+			// world.PrintEntities()
 
 		case key := <-keyChan:
 			switch key {
