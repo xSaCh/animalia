@@ -6,6 +6,7 @@ import { createTerrain } from "./Terrain.js";
 import { createObstacleMeshes } from "./ObstacleMesh.js";
 import {
   createEntityMesh,
+  setEntityHighlight,
   updateEntityMesh,
 } from "./EntityMesh.js";
 import type { InterpolatedEntity } from "./Interpolator.js";
@@ -20,6 +21,7 @@ export class Scene {
   private obstacleGroup: THREE.Group | null = null;
   private entityMeshes = new Map<number, THREE.Object3D>();
   private entityGroup = new THREE.Group();
+  private selectedEntityId: number | null = null;
 
   // Frustum size for orthographic camera (view size in world units)
   // Increased to cover 30x30 world comfortably
@@ -94,6 +96,7 @@ export class Scene {
       }
 
       if (obj && obj.userData.entityId !== undefined) {
+        this.setSelectedEntity(obj.userData.entityId);
         if (this.onEntitySelect) {
           this.onEntitySelect(obj.userData.entityId);
         }
@@ -102,6 +105,7 @@ export class Scene {
     }
 
     // If no entity clicked, deselect
+    this.setSelectedEntity(null);
     if (this.onEntitySelect) {
       this.onEntitySelect(null);
     }
@@ -146,6 +150,9 @@ export class Scene {
           }
         });
         this.entityMeshes.delete(id);
+        if (this.selectedEntityId === id) {
+          this.selectedEntityId = null;
+        }
       }
     }
     for (const ent of interpolated) {
@@ -154,9 +161,17 @@ export class Scene {
         mesh = createEntityMesh(ent);
         this.entityMeshes.set(ent.id, mesh);
         this.entityGroup.add(mesh);
+        setEntityHighlight(mesh, ent.id === this.selectedEntityId);
       } else {
         updateEntityMesh(mesh, ent);
       }
+    }
+  }
+
+  setSelectedEntity(entityId: number | null): void {
+    this.selectedEntityId = entityId;
+    for (const [id, mesh] of this.entityMeshes) {
+      setEntityHighlight(mesh, id === entityId);
     }
   }
 

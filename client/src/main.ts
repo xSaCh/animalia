@@ -13,14 +13,19 @@ const scene = new Scene(canvas);
 
 let selectedEntityId: number | null = null;
 
-scene.onEntitySelect = (id) => {
+function setSelectedEntity(id: number | null): void {
   selectedEntityId = id;
+  scene.setSelectedEntity(id);
   if (id === null) {
     hud.style.display = "none";
   } else {
     hud.style.display = "block";
     updateHud();
   }
+}
+
+scene.onEntitySelect = (id) => {
+  setSelectedEntity(id);
 };
 
 function updateHud() {
@@ -32,6 +37,7 @@ function updateHud() {
     // Entity might have died or disappeared
     hud.style.display = "none";
     selectedEntityId = null;
+    scene.setSelectedEntity(null);
     return;
   }
 
@@ -70,4 +76,27 @@ requestAnimationFrame(loop);
 
 window.addEventListener("resize", () => {
   scene.resize(canvas.clientWidth, canvas.clientHeight);
+});
+
+window.addEventListener("keydown", (event) => {
+  if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
+
+  const world = scene.getLatestWorld();
+  if (!world || world.entities.length === 0) return;
+
+  const ids = world.entities.map((e) => e.id).sort((a, b) => a - b);
+  const currentIdx = selectedEntityId === null ? -1 : ids.indexOf(selectedEntityId);
+
+  let nextIdx = 0;
+  if (currentIdx === -1) {
+    nextIdx = event.key === "ArrowRight" ? 0 : ids.length - 1;
+  } else {
+    nextIdx =
+      event.key === "ArrowRight"
+        ? (currentIdx + 1) % ids.length
+        : (currentIdx - 1 + ids.length) % ids.length;
+  }
+
+  setSelectedEntity(ids[nextIdx]);
+  event.preventDefault();
 });
