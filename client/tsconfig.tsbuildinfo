@@ -1,0 +1,1 @@
+{"root":["./src/main.ts","./src/connection/mock.ts","./src/connection/types.ts","./src/connection/websocket.ts","./src/models/world.ts","./src/scene/EntityMesh.ts","./src/scene/Interpolator.ts","./src/scene/ObstacleMesh.ts","./src/scene/Scene.ts","./src/scene/Terrain.ts"],"version":"5.6.3"}

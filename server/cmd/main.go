@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	TICKS_PER_SECOND = 5
+	TICKS_PER_SECOND = 20
 )
 
 func main() {
@@ -36,8 +36,8 @@ func main() {
 		}
 	}()
 
-	world := game.NewWorld(30, TICKS_PER_SECOND)
-	for i := range 1 {
+	world := game.NewWorld(120, TICKS_PER_SECOND)
+	for i := range 10 {
 		pos := world.GetRandomWalkablePosition()
 		goat := game.NewGoat(i+1, pos)
 		world.Entities = append(world.Entities, goat)
@@ -49,7 +49,7 @@ func main() {
 		case <-ticker.C:
 			world.Tick()
 		case <-renderTicker.C:
-			clearConsole()
+			// clearConsole()
 			json.NewEncoder(os.Stdout).Encode(world)
 			// world.DrawAsciiWorld()
 			// world.PrintEntities()
