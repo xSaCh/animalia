@@ -1,7 +1,6 @@
 package game
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/xSaCh/animalia/internal/common"
@@ -45,11 +44,8 @@ func createGoatBehaviorTree() btree.Node {
 
 		// Find nearest water source
 		waterPos := world.GetRandomWaterSourcePos()
-		if waterPos.IsZero() {
-			return btree.Failure // No water source available
-		}
+	
 		goat.TargetPos = &waterPos
-		goat.State = common.EntityStateFindWater
 		return btree.Success
 	}
 	findFoodSource := func(ctx *btree.TickContext) btree.Status {
@@ -58,11 +54,8 @@ func createGoatBehaviorTree() btree.Node {
 
 		// Find nearest food source
 		foodPos := world.GetRandomFoodSourcePos()
-		if foodPos.IsZero() {
-			return btree.Failure // No food source available
-		}
+
 		goat.TargetPos = &foodPos
-		goat.State = common.EntityStateFindFood
 		return btree.Success
 	}
 	findRestingSpot := func(ctx *btree.TickContext) btree.Status {
@@ -71,8 +64,8 @@ func createGoatBehaviorTree() btree.Node {
 
 		// Find a random walkable position to rest
 		restPos := world.GetRandomWalkablePosition()
+
 		goat.TargetPos = &restPos
-		goat.State = common.EntityStateResting
 		return btree.Success
 	}
 	findRoamingPosition := func(ctx *btree.TickContext) btree.Status {
@@ -95,11 +88,11 @@ func createGoatBehaviorTree() btree.Node {
 		if goat.TargetPos != nil && goat.Position.Distance(*goat.TargetPos) > 0.5 {
 			goat.MoveTowardTarget()
 			goat.updateStatsDuringWalk()
+			goat.State = common.EntityStateMoving
 			return btree.Running
 		}
-
-		fmt.Printf("Goat %d is thirsty. Moving to water source at (%.2f, %.2f)\n", goat.ID, goat.TargetPos.X, goat.TargetPos.Y)
 		// Drink water
+		goat.State = common.EntityStateDrinking
 		goat.Stats.Thirst -= 2
 		if goat.Stats.Thirst <= 20 {
 			goat.TargetPos = nil
@@ -115,11 +108,12 @@ func createGoatBehaviorTree() btree.Node {
 		if goat.TargetPos != nil && goat.Position.Distance(*goat.TargetPos) > 0.5 {
 			goat.MoveTowardTarget()
 			goat.updateStatsDuringWalk()
+			goat.State = common.EntityStateMoving
 			return btree.Running
 		}
 
-		fmt.Printf("Goat %d is hungry. Moving to food source at (%.2f, %.2f)\n", goat.ID, goat.TargetPos.X, goat.TargetPos.Y)
 		// Eat food
+		goat.State = common.EntityStateEating
 		goat.Stats.Hunger -= 2
 		if goat.Stats.Hunger <= 25 {
 			goat.TargetPos = nil
@@ -135,11 +129,12 @@ func createGoatBehaviorTree() btree.Node {
 		if goat.TargetPos != nil && goat.Position.Distance(*goat.TargetPos) > 0.5 {
 			goat.MoveTowardTarget()
 			goat.updateStatsDuringWalk()
+			goat.State = common.EntityStateMoving
 			return btree.Running
 		}
 
-		fmt.Printf("Goat %d is tired. Moving to resting spot at (%.2f, %.2f)\n", goat.ID, goat.TargetPos.X, goat.TargetPos.Y)
 		// Rest
+		goat.State = common.EntityStateResting
 		goat.Stats.Tiredness -= 2
 		if goat.Stats.Tiredness <= 30 {
 			goat.TargetPos = nil
@@ -156,9 +151,11 @@ func createGoatBehaviorTree() btree.Node {
 		if goat.TargetPos != nil && goat.Position.Distance(*goat.TargetPos) > 0.5 {
 			goat.MoveTowardTarget()
 			goat.updateStatsDuringWalk()
+			goat.State = common.EntityStateMoving
 			return btree.Running
 		}
-		fmt.Printf("Goat %d is idling at (%.2f, %.2f)\n", goat.ID, goat.TargetPos.X, goat.TargetPos.Y)
+		
+		goat.State = common.EntityStateIdle
 		if world.GetTick()%40 == 0 {
 			return btree.Success
 		}

@@ -12,12 +12,12 @@ const (
 	EntityTypeWolf EntityType = "wolf"
 
 	// EntityState
-	// EntityStateIdle      EntityState = "idle"
-	// EntityStateSearching EntityState = "searching"
-	EntityStateRoaming   EntityState = "roaming"
-	EntityStateFindFood  EntityState = "finding_food"
-	EntityStateFindWater EntityState = "finding_water"
-	EntityStateResting   EntityState = "resting"
+	EntityStateRoaming  EntityState = "roaming"
+	EntityStateMoving   EntityState = "moving"
+	EntityStateDrinking EntityState = "drinking"
+	EntityStateEating   EntityState = "eating"
+	EntityStateResting  EntityState = "resting"
+	EntityStateIdle     EntityState = "idle"
 
 	// ObstacleType
 	ObstacleTypeWall        ObstacleType = "wall"
