@@ -1,0 +1,52 @@
+{
+  "id": 1,
+  "width": 30,
+  "height": 30,
+  "navigation_grid": [height][width] boolean,
+  "static_obstacles": {
+    "walls": [
+      { "type": "wall", "position": { "x": 29, "y": 28 } },
+      { "type": "wall", "position": { "x": 27, "y": 1 } },
+      { "type": "wall", "position": { "x": 7, "y": 23 } },
+      { "type": "wall", "position": { "x": 0, "y": 22 } },
+      { "type": "wall", "position": { "x": 1, "y": 26 } },
+      { "type": "wall", "position": { "x": 25, "y": 25 } },
+      { "type": "wall", "position": { "x": 27, "y": 1 } },
+      { "type": "wall", "position": { "x": 14, "y": 7 } },
+      { "type": "wall", "position": { "x": 20, "y": 18 } },
+      { "type": "wall", "position": { "x": 19, "y": 18 } }
+    ],
+    "water_sources": [
+      { "type": "water_source", "position": { "x": 2, "y": 2 } },
+      { "type": "water_source", "position": { "x": 26, "y": 17 } },
+      { "type": "water_source", "position": { "x": 10, "y": 16 } },
+      { "type": "water_source", "position": { "x": 0, "y": 8 } },
+      { "type": "water_source", "position": { "x": 19, "y": 22 } }
+    ],
+    "food_sources": [
+      { "type": "food_source", "position": { "x": 16, "y": 19 } },
+      { "type": "food_source", "position": { "x": 25, "y": 23 } },
+      { "type": "food_source", "position": { "x": 19, "y": 0 } },
+      { "type": "food_source", "position": { "x": 14, "y": 6 } },
+      { "type": "food_source", "position": { "x": 1, "y": 22 } },
+      { "type": "food_source", "position": { "x": 12, "y": 4 } },
+      { "type": "food_source", "position": { "x": 11, "y": 17 } },
+      { "type": "food_source", "position": { "x": 17, "y": 13 } },
+      { "type": "food_source", "position": { "x": 21, "y": 25 } },
+      { "type": "food_source", "position": { "x": 5, "y": 13 } }
+    ],
+    "rest_areas": []
+  },
+  "entities": [
+    {
+      "id": 1,
+      "type": "goat",
+      "position": { "x": 23.126521144336547, "y": 18.57826285221151 },
+      "state": "idle",
+      "direction": { "x": -0.2873478855663463, "y": 0.957826285221151 },
+      "target_pos": { "x": 23, "y": 19 },
+      "stats": { "hunger": 40, "thirst": 45, "tiredness": 30 }
+    }
+  ],
+  "config": { "tps": 5 }
+}
