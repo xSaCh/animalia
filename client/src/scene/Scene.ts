@@ -25,6 +25,10 @@ export class Scene {
   // Increased to cover 30x30 world comfortably
   private frustumSize = 50;
 
+  private raycaster = new THREE.Raycaster();
+  private mouse = new THREE.Vector2();
+  public onEntitySelect: ((entityId: number | null) => void) | null = null;
+
   constructor(canvas: HTMLCanvasElement) {
     this.scene = new THREE.Scene();
     // Darker background for "blueprint" or "schematic" feel, or just clean white?
@@ -65,6 +69,42 @@ export class Scene {
     this.controls.maxZoom = 4;
 
     this.scene.add(this.entityGroup);
+
+    canvas.addEventListener("click", this.onClick.bind(this));
+  }
+
+  private onClick(event: MouseEvent): void {
+    const rect = this.renderer.domElement.getBoundingClientRect();
+    this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+
+    // Check intersection with entity group
+    const intersects = this.raycaster.intersectObjects(
+      this.entityGroup.children,
+      true
+    );
+
+    if (intersects.length > 0) {
+      // Find the first object that has userData.entityId (could be a child mesh)
+      let obj: THREE.Object3D | null = intersects[0].object;
+      while (obj && obj.userData.entityId === undefined) {
+        obj = obj.parent;
+      }
+
+      if (obj && obj.userData.entityId !== undefined) {
+        if (this.onEntitySelect) {
+          this.onEntitySelect(obj.userData.entityId);
+        }
+        return;
+      }
+    }
+
+    // If no entity clicked, deselect
+    if (this.onEntitySelect) {
+      this.onEntitySelect(null);
+    }
   }
 
   updateWorldState(state: WorldState): void {
@@ -127,6 +167,10 @@ export class Scene {
     this.syncEntities(entities);
 
     this.renderer.render(this.scene, this.camera);
+  }
+
+  getLatestWorld(): WorldState | null {
+    return this.interpolator.getLatestWorld();
   }
 
   resize(width: number, height: number): void {
